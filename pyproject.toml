@@ -1,0 +1,18 @@
+[project]
+name = "llm-eval-evalscope"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "dotenv>=0.9.9",
+    "emoji>=2.15.0",
+    "evalscope[all]>=1.3.0",
+    "nltk>=3.9.2",
+    "pythainlp>=5.1.2",
+    "swebench==4.1.0",
+]
+
+[[tool.uv.index]]
+url = "https://mirrors.aliyun.com/pypi/simple/"
+default = true
