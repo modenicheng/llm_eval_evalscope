@@ -1,0 +1,103 @@
+{
+    "name": "qwen3-max@ifeval",
+    "dataset_name": "ifeval",
+    "dataset_pretty_name": "IFEval",
+    "dataset_description": "IFEval is a benchmark for evaluating instruction-following language models, focusing on their ability to understand and respond to various prompts. It includes a diverse set of tasks and metrics to assess model performance comprehensively.",
+    "model_name": "qwen3-max",
+    "score": 0.8594,
+    "metrics": [
+        {
+            "name": "mean_prompt_level_strict",
+            "num": 64,
+            "score": 0.8594,
+            "macro_score": 0.8594,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 64,
+                    "score": 0.8594,
+                    "macro_score": 0.8594,
+                    "subsets": [
+                        {
+                            "name": "default",
+                            "score": 0.8594,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_inst_level_strict",
+            "num": 64,
+            "score": 0.9167,
+            "macro_score": 0.9167,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 64,
+                    "score": 0.9167,
+                    "macro_score": 0.9167,
+                    "subsets": [
+                        {
+                            "name": "default",
+                            "score": 0.9167,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_prompt_level_loose",
+            "num": 64,
+            "score": 0.875,
+            "macro_score": 0.875,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 64,
+                    "score": 0.875,
+                    "macro_score": 0.875,
+                    "subsets": [
+                        {
+                            "name": "default",
+                            "score": 0.875,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_inst_level_loose",
+            "num": 64,
+            "score": 0.9375,
+            "macro_score": 0.9375,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 64,
+                    "score": 0.9375,
+                    "macro_score": 0.9375,
+                    "subsets": [
+                        {
+                            "name": "default",
+                            "score": 0.9375,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "analysis": "N/A"
+}

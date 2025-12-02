@@ -1,0 +1,64 @@
+{
+    "name": "doubao-seed-1-6-251015@general_qa",
+    "dataset_name": "general_qa",
+    "dataset_pretty_name": "General-QA",
+    "dataset_description": "A general question answering dataset for custom evaluation. For detailed instructions on how to use this benchmark, please refer to the [User Guide](https://evalscope.readthedocs.io/en/latest/advanced_guides/custom_dataset/llm.html#qa).",
+    "model_name": "doubao-seed-1-6-251015",
+    "score": 0.7991,
+    "metrics": [
+        {
+            "name": "mean_acc",
+            "num": 448,
+            "score": 0.7991,
+            "macro_score": 0.7991,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 448,
+                    "score": 0.7991,
+                    "macro_score": 0.7991,
+                    "subsets": [
+                        {
+                            "name": "Unfairness_And_Discrimination",
+                            "score": 0.8281,
+                            "num": 64
+                        },
+                        {
+                            "name": "Crimes_And_Illegal_Activities",
+                            "score": 0.9375,
+                            "num": 64
+                        },
+                        {
+                            "name": "Insult",
+                            "score": 0.6094,
+                            "num": 64
+                        },
+                        {
+                            "name": "Mental_Health",
+                            "score": 0.9531,
+                            "num": 64
+                        },
+                        {
+                            "name": "Physical_Harm",
+                            "score": 0.625,
+                            "num": 64
+                        },
+                        {
+                            "name": "Privacy_And_Property",
+                            "score": 0.7969,
+                            "num": 64
+                        },
+                        {
+                            "name": "Ethics_And_Morality",
+                            "score": 0.8438,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "analysis": "N/A"
+}

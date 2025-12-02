@@ -1,5 +1,4 @@
 import json
-import os
 
 
 def read_json(file_path):
@@ -17,8 +16,6 @@ def main():
     print("Loading data...")
     data: dict = read_json("data/safety-prompts/typical_safety_scenarios.json")
 
-    os.makedirs("./results", exist_ok=True)
-
     for key in data.keys():
         print(f"Processing {key}")
         sub_data = []
@@ -27,11 +24,7 @@ def main():
                 "query": item["prompt"],
                 "response": item["response"]
             })
-        save_jsonl(sub_data,
-                    f"data/safety-prompts/{key}.jsonl")
-
-
-d = {}
+        save_jsonl(sub_data, f"data/safety-prompts/{key}.jsonl")
 
 
 if __name__ == "__main__":

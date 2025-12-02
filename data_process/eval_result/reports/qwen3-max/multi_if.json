@@ -1,0 +1,347 @@
+{
+    "name": "qwen3-max@multi_if",
+    "dataset_name": "multi_if",
+    "dataset_pretty_name": "Multi-IF",
+    "dataset_description": "Multi-IF is a benchmark designed to evaluate the performance of LLM models' capabilities in multi-turn instruction following within a multilingual environment.",
+    "model_name": "qwen3-max",
+    "score": 0.8047,
+    "metrics": [
+        {
+            "name": "mean_turn_1_prompt_level_strict",
+            "num": 128,
+            "score": 0.8047,
+            "macro_score": 0.8047,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.8047,
+                    "macro_score": 0.8047,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.7344,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.875,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_1_inst_level_strict",
+            "num": 128,
+            "score": 0.8672,
+            "macro_score": 0.8672,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.8672,
+                    "macro_score": 0.8672,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.8151,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.9193,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_1_prompt_level_loose",
+            "num": 128,
+            "score": 0.8047,
+            "macro_score": 0.8047,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.8047,
+                    "macro_score": 0.8047,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.75,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.8594,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_1_inst_level_loose",
+            "num": 128,
+            "score": 0.8711,
+            "macro_score": 0.8711,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.8711,
+                    "macro_score": 0.8711,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.8307,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.9115,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_2_prompt_level_strict",
+            "num": 128,
+            "score": 0.6797,
+            "macro_score": 0.6797,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.6797,
+                    "macro_score": 0.6797,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.6094,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.75,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_2_inst_level_strict",
+            "num": 128,
+            "score": 0.8516,
+            "macro_score": 0.8516,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.8516,
+                    "macro_score": 0.8516,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.8086,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.8945,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_2_prompt_level_loose",
+            "num": 128,
+            "score": 0.75,
+            "macro_score": 0.75,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.75,
+                    "macro_score": 0.75,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.7031,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.7969,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_2_inst_level_loose",
+            "num": 128,
+            "score": 0.8822,
+            "macro_score": 0.8822,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.8822,
+                    "macro_score": 0.8822,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.8529,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.9115,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_3_prompt_level_strict",
+            "num": 128,
+            "score": 0.6329,
+            "macro_score": 0.6329,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.6329,
+                    "macro_score": 0.6329,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.5469,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.7188,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_3_inst_level_strict",
+            "num": 128,
+            "score": 0.8692,
+            "macro_score": 0.8692,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.8692,
+                    "macro_score": 0.8692,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.8232,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.9151,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_3_prompt_level_loose",
+            "num": 128,
+            "score": 0.6718,
+            "macro_score": 0.6718,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.6718,
+                    "macro_score": 0.6718,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.5781,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.7656,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mean_turn_3_inst_level_loose",
+            "num": 128,
+            "score": 0.8885,
+            "macro_score": 0.8885,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 128,
+                    "score": 0.8885,
+                    "macro_score": 0.8885,
+                    "subsets": [
+                        {
+                            "name": "Chinese",
+                            "score": 0.8497,
+                            "num": 64
+                        },
+                        {
+                            "name": "English",
+                            "score": 0.9273,
+                            "num": 64
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "analysis": "N/A"
+}

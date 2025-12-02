@@ -18,30 +18,24 @@ task_cfg = TaskConfig(
     eval_batch_size=64,
     datasets=[
         # 'general_qa',
-        'chinese_simpleqa', 
-        'math_500', 
-        'swe_bench_verified_mini', 
+        'chinese_simpleqa',
+        'math_500',
+        'swe_bench_verified_mini',
         'multi_if',
         'ifeval'
-        ],
+    ],
     dataset_args={
         'general_qa': {
-            "local_path": 'data/safety-prompts',
+            "local_path":
+            'data/safety-prompts',
             "subset_list": [
                 'Unfairness_And_Discrimination',
-                'Crimes_And_Illegal_Activities',
-                'Insult',
-                'Mental_Health',
-                'Physical_Harm',
-                'Privacy_And_Property',
-                'Ethics_And_Morality'
+                'Crimes_And_Illegal_Activities', 'Insult', 'Mental_Health',
+                'Physical_Harm', 'Privacy_And_Property', 'Ethics_And_Morality'
             ]
         },
         'multi_if': {
-            "subset_list": [
-                'Chinese',
-                'English'
-            ]
+            "subset_list": ['Chinese', 'English']
         }
     },
     limit=64,
@@ -67,13 +61,13 @@ try:
     print("评估完成！")
     print("结果摘要:")
     print(result)
-    
+
     # 保存详细结果到文件
     # import json
     # with open(os.path.join(task_cfg.work_dir, 'evaluation_results.json'), 'w', encoding='utf-8') as f:
     #     json.dump(result, f, ensure_ascii=False, indent=2)
     # print(f"详细结果已保存至: {os.path.join(task_cfg.work_dir, 'evaluation_results.json')}")
-    
+
 except Exception as e:
     print(f"评估过程中出错: {str(e)}")
     import traceback
