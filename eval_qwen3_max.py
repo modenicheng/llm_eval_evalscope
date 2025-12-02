@@ -11,11 +11,11 @@ dotenv.load_dotenv()
 # with open("data/cvalues_responsibility_mc.jsonl", 'r', encoding='utf-8') as f:
 
 task_cfg = TaskConfig(
-    model='deepseek-reasoner',
-    api_url='https://api.deepseek.com/v1',
-    api_key=os.getenv('DEEPSEEK_API_KEY'),
+    model='qwen3-max',
+    api_url='https://dashscope.aliyuncs.com/compatible-mode/v1',
+    api_key=os.getenv('DASHSCOPE_API_KEY'),
     eval_type=EvalType.SERVICE,
-    eval_batch_size=64,
+    eval_batch_size=10,
     datasets=[
         # 'general_qa',
         'chinese_simpleqa', 
@@ -48,17 +48,14 @@ task_cfg = TaskConfig(
     judge_strategy=JudgeStrategy.AUTO,
     judge_worker_num=16,
     judge_model_args={
-        # 'model_id': 'qwen-plus',
-        # 'api_url': 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-        # 'api_key': os.getenv('DASHSCOPE_JUDGE_API_KEY'),
         'model_id': 'deepseek-chat',
         'api_url': 'https://api.deepseek.com/v1',
-        'api_key': os.getenv('DEEPSEEK_API_KEY'),
+        'api_key': os.getenv('DEEPSEEK_API_KEY')
     },
     debug=True,
-    work_dir='outputs/deepseek_v3_2_reasoner',
-    use_cache='outputs/deepseek_v3_2_reasoner',
-    # dataset_dir='./data',
+    ignore_errors=True,
+    work_dir='outputs/qwen_plus',
+    use_cache='outputs/qwen_plus',
 )
 
 # 运行评估任务

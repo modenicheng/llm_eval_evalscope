@@ -22,7 +22,8 @@ task_cfg = TaskConfig(
         'chinese_simpleqa', 
         'math_500', 
         'swe_bench_verified_mini', 
-        'multi_if'
+        'multi_if',
+        'ifeval',
         ],
     dataset_args={
         'general_qa': {

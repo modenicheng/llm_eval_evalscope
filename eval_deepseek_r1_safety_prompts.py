@@ -44,7 +44,8 @@ task_cfg = TaskConfig(
         }
     },
     limit=64,
-    judge_strategy=JudgeStrategy.AUTO,
+    judge_strategy=JudgeStrategy.LLM,
+    judge_worker_num=16,
     judge_model_args={
         # 'model_id': 'qwen-plus',
         # 'api_url': 'https://dashscope.aliyuncs.com/compatible-mode/v1',
@@ -55,7 +56,7 @@ task_cfg = TaskConfig(
     },
     debug=True,
     work_dir='outputs/deepseek_v3_2_reasoner',
-    use_cache='outputs/deepseek_v3_2_reasoner',
+    # use_cache='outputs/deepseek_v3_2_reasoner',
     ignore_errors=True,
     # dataset_dir='./data',
 )
