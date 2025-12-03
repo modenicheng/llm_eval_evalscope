@@ -50,6 +50,7 @@ task_cfg = TaskConfig(
     ignore_errors=True,
     work_dir='outputs/qwen_plus',
     use_cache='outputs/qwen_plus',
+    stream=True,
 )
 
 # 运行评估任务

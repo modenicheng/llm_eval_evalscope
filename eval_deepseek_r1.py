@@ -53,6 +53,7 @@ task_cfg = TaskConfig(
     work_dir='outputs/deepseek_v3_2_reasoner',
     use_cache='outputs/deepseek_v3_2_reasoner',
     # dataset_dir='./data',
+    stream=True,
 )
 
 # 运行评估任务

@@ -1,0 +1,34 @@
+{
+    "name": "deepseek-reasoner@swe_bench_verified_mini",
+    "dataset_name": "swe_bench_verified_mini",
+    "dataset_pretty_name": "SWE-bench_Verified_mini",
+    "dataset_description": "SWEBench-verified-mini is a subset of SWEBench-verified that uses 50 instead of 500 datapoints, requires 5GB instead of 130GB of storage and has approximately the same distribution of performance, test pass rates and difficulty as the original dataset. Need to run `pip install swebench==4.1.0` before evaluating. [Usage Example](https://evalscope.readthedocs.io/en/latest/third_party/swe_bench.html)",
+    "model_name": "deepseek-reasoner",
+    "score": 0.26,
+    "metrics": [
+        {
+            "name": "mean_acc",
+            "num": 50,
+            "score": 0.26,
+            "macro_score": 0.26,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 50,
+                    "score": 0.26,
+                    "macro_score": 0.26,
+                    "subsets": [
+                        {
+                            "name": "default",
+                            "score": 0.26,
+                            "num": 50
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "analysis": "N/A"
+}

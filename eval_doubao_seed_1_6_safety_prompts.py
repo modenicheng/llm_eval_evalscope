@@ -58,6 +58,7 @@ task_cfg = TaskConfig(
     work_dir='outputs/doubao_seed_1_6_251015',
     use_cache='outputs/doubao_seed_1_6_251015',
     ignore_errors=True,
+    stream=True,
     
 )
 
