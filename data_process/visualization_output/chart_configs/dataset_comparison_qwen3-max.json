@@ -1,0 +1,98 @@
+{
+  "type": "bar",
+  "data": {
+    "labels": [
+      "Chinese-SimpleQA",
+      "General-QA",
+      "IFEval",
+      "MATH-500",
+      "Multi-IF",
+      "SWE-bench_Verified_mini"
+    ],
+    "datasets": [
+      {
+        "label": "overall Score",
+        "data": [
+          0.8776,
+          0.8352,
+          0.8594,
+          0.9799,
+          0.8047,
+          0.22
+        ],
+        "backgroundColor": [
+          "rgba(54, 162, 235, 0.7)",
+          "rgba(54, 162, 235, 0.7)",
+          "rgba(54, 162, 235, 0.7)",
+          "rgba(54, 162, 235, 0.7)",
+          "rgba(54, 162, 235, 0.7)",
+          "rgba(255, 99, 132, 0.7)"
+        ],
+        "borderColor": [
+          "rgba(54, 162, 235, 1.0)",
+          "rgba(54, 162, 235, 1.0)",
+          "rgba(54, 162, 235, 1.0)",
+          "rgba(54, 162, 235, 1.0)",
+          "rgba(54, 162, 235, 1.0)",
+          "rgba(255, 99, 132, 1.0)"
+        ],
+        "borderWidth": 2
+      }
+    ]
+  },
+  "options": {
+    "responsive": true,
+    "maintainAspectRatio": true,
+    "animation": {
+      "duration": 1000,
+      "easing": "easeOutQuart"
+    },
+    "plugins": {
+      "title": {
+        "display": true,
+        "text": "qwen3-max Performance Across Datasets",
+        "color": "#333",
+        "font": {
+          "size": 18,
+          "weight": "bold"
+        }
+      },
+      "legend": {
+        "display": true,
+        "position": "top"
+      },
+      "tooltip": {
+        "enabled": true,
+        "mode": "index",
+        "intersect": false
+      }
+    },
+    "scales": {
+      "x": {
+        "type": "category",
+        "display": true,
+        "grid": {
+          "display": false
+        }
+      },
+      "y": {
+        "type": "linear",
+        "display": true,
+        "title": {
+          "display": true,
+          "text": "Score",
+          "color": "#666",
+          "font": {
+            "size": 14
+          }
+        },
+        "grid": {
+          "display": true,
+          "color": "rgba(0, 0, 0, 0.1)"
+        },
+        "min": 0,
+        "max": 1.0
+      }
+    }
+  }
+}

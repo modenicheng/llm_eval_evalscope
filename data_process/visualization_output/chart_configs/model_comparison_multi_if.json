@@ -1,0 +1,98 @@
+{
+  "type": "bar",
+  "data": {
+    "labels": [
+      "deepseek-reasoner-v3.2",
+      "deepseek-reasoner-v3.2-exp",
+      "deepseek-reasoner-v3.2-special",
+      "doubao-seed-1-6-251015",
+      "qwen-plus",
+      "qwen3-max"
+    ],
+    "datasets": [
+      {
+        "label": "overall Score",
+        "data": [
+          0.8203,
+          0.8984,
+          0.7266,
+          0.8125,
+          0.8828,
+          0.8047
+        ],
+        "backgroundColor": [
+          "rgba(75, 192, 192, 0.7)",
+          "rgba(75, 192, 192, 0.7)",
+          "rgba(255, 206, 86, 0.7)",
+          "rgba(75, 192, 192, 0.7)",
+          "rgba(75, 192, 192, 0.7)",
+          "rgba(75, 192, 192, 0.7)"
+        ],
+        "borderColor": [
+          "rgba(75, 192, 192, 1.0)",
+          "rgba(75, 192, 192, 1.0)",
+          "rgba(255, 206, 86, 1.0)",
+          "rgba(75, 192, 192, 1.0)",
+          "rgba(75, 192, 192, 1.0)",
+          "rgba(75, 192, 192, 1.0)"
+        ],
+        "borderWidth": 2
+      }
+    ]
+  },
+  "options": {
+    "responsive": true,
+    "maintainAspectRatio": true,
+    "animation": {
+      "duration": 1000,
+      "easing": "easeOutQuart"
+    },
+    "plugins": {
+      "title": {
+        "display": true,
+        "text": "Model Comparison on multi_if",
+        "color": "#333",
+        "font": {
+          "size": 18,
+          "weight": "bold"
+        }
+      },
+      "legend": {
+        "display": true,
+        "position": "top"
+      },
+      "tooltip": {
+        "enabled": true,
+        "mode": "index",
+        "intersect": false
+      }
+    },
+    "scales": {
+      "x": {
+        "type": "category",
+        "display": true,
+        "grid": {
+          "display": false
+        }
+      },
+      "y": {
+        "type": "linear",
+        "display": true,
+        "title": {
+          "display": true,
+          "text": "Score",
+          "color": "#666",
+          "font": {
+            "size": 14
+          }
+        },
+        "grid": {
+          "display": true,
+          "color": "rgba(0, 0, 0, 0.1)"
+        },
+        "min": 0,
+        "max": 1.0
+      }
+    }
+  }
+}

@@ -772,32 +772,29 @@ class ChartJS:
     
     def set_radial_scale(self, scale_config: RadialLinearScale) -> 'ChartJS':
         """配置雷达图的径向坐标轴"""
-        if 'r' not in self.scales:
-            self.scales['r'] = {}
-        
         scale_dict = scale_config.to_dict()
         if scale_dict:
             self.scales['r'] = scale_dict
-            
+
         return self
     
-    def set_scales(self, x_scale: Optional[ScaleConfig] = None, 
+    def set_scales(self, x_scale: Optional[ScaleConfig] = None,
                   y_scale: Optional[ScaleConfig] = None) -> 'ChartJS':
         """配置坐标轴"""
         if x_scale:
-            if 'x' not in self.scales:
-                self.scales['x'] = {}
             scale_dict = x_scale.to_dict()
             if scale_dict:
+                if 'x' not in self.scales:
+                    self.scales['x'] = {}
                 self.scales['x'].update(scale_dict)
-        
+
         if y_scale:
-            if 'y' not in self.scales:
-                self.scales['y'] = {}
             scale_dict = y_scale.to_dict()
             if scale_dict:
+                if 'y' not in self.scales:
+                    self.scales['y'] = {}
                 self.scales['y'].update(scale_dict)
-                
+
         return self
     
     def set_legend(self, display: bool = True, position: Position = Position.TOP, 
@@ -973,7 +970,6 @@ if __name__ == "__main__":
     radial_scale = RadialLinearScale(
         angleLines=AngleLine(
             display=True,
-            color="rgba(0, 0, 0, 0.1)"
         ),
         suggestedMin=0,
         suggestedMax=100

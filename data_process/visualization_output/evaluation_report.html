@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Evaluation Results Visualization Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            background-color: #f6f8fa;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 150px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .toc {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .toc h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .toc ul {
+            list-style-type: none;
+            column-count: 2;
+        }
+
+        .toc li {
+            margin-bottom: 8px;
+        }
+
+        .toc a {
+            color: #0366d6;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .toc a:hover {
+            background-color: #f1f8ff;
+        }
+
+        .section {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .chart-card {
+            background-color: #f8f9fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #24292e;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            margin-bottom: 15px;
+        }
+
+        .chart-description {
+            color: #586069;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .chart-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .load-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .load-btn:hover {
+            background-color: #45a049;
+        }
+
+        .load-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .status {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .status.loading {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status.loaded {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #6a737d;
+            font-size: 0.9em;
+            border-top: 1px solid #e1e4e8;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toc ul {
+                column-count: 1;
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>LLM Evaluation Results Visualization Report</h1>
+        <div class="subtitle">Interactive visualization of model performance across datasets and metrics</div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value">66</div>
+                <div class="stat-label">Charts Generated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">6</div>
+                <div class="stat-label">Models Evaluated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">6</div>
+                <div class="stat-label">Datasets Used</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">66</div>
+                <div class="stat-label">Chart Files</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#model-comparisons">Model Comparisons</a></li>
+            <li><a href="#dataset-comparisons">Dataset Comparisons</a></li>
+            <li><a href="#category-analysis">Category Analysis</a></li>
+            <li><a href="#metric-analysis">Metric Analysis</a></li>
+            <li><a href="#how-to-use">How to Use</a></li>
+        </ul>
+    </div>
+
+
+    <script>
+        // Global chart instances and state
+        const chartInstances = {};
+        const chartStates = {};
+
+        // Load and render a chart
+        async function loadChart(chartFile, canvasId, btnId, statusId) {
+            const button = document.getElementById(btnId);
+            const status = document.getElementById(statusId);
+
+            try {
+                // Update UI state
+                button.disabled = true;
+                status.textContent = 'Loading...';
+                status.className = 'status loading';
+
+                // Load chart configuration
+                const response = await fetch(chartFile);
+                if (!response.ok) {
+                    throw new Error(`Failed to load chart: ${response.status} ${response.statusText}`);
+                }
+
+                const config = await response.json();
+
+                // Get canvas context
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) {
+                    throw new Error(`Canvas element not found: ${canvasId}`);
+                }
+                const ctx = canvas.getContext('2d');
+
+                // Destroy existing chart if it exists
+                if (chartInstances[canvasId]) {
+                    chartInstances[canvasId].destroy();
+                }
+
+                // Create new chart
+                chartInstances[canvasId] = new Chart(ctx, config);
+                chartStates[canvasId] = 'loaded';
+
+                // Update UI state
+                status.textContent = 'Loaded ✓';
+                status.className = 'status loaded';
+                button.textContent = 'Reload Chart';
+                button.disabled = false;
+
+            } catch (error) {
+                console.error('Error loading chart:', error);
+                status.textContent = `Error: ${error.message}`;
+                status.className = 'status error';
+                button.disabled = false;
+            }
+        }
+
+        // Load all charts in a section
+        function loadAllCharts(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+
+            const buttons = section.querySelectorAll('.load-btn');
+            buttons.forEach(btn => {
+                if (!btn.disabled) {
+                    btn.click();
+                }
+            });
+        }
+
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add any initialization code here
+            console.log('LLM Evaluation Report loaded');
+        });
+    </script>
+
+
+    <div class="section" id="model-comparisons">
+        <h2>Model Comparisons</h2>
+        <p>Compare performance of different models on the same dataset. Higher scores indicate better performance.</p>
+
+        <div class="chart-controls" style="margin-bottom: 20px;">
+            <button class="load-btn" onclick="loadAllCharts('model-comparisons')">Load All Model Charts</button>
+        </div>
+
+        <div class="chart-grid">
+    
+
+            <div class="chart-card">
+                <div class="chart-title">Model Comparison: chinese_simpleqa</div>
+                <div class="chart-wrapper">
+                    <canvas id="model_comp_chinese_simpleqa"></canvas>
+                </div>
+                <div class="chart-description">
+                    Compares all evaluated models on the chinese_simpleqa dataset.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_model_comp_chinese_simpleqa" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/model_comparison_chinese_simpleqa.json', 'model_comp_chinese_simpleqa', 'btn_model_comp_chinese_simpleqa', 'status_model_comp_chinese_simpleqa')">
+                        Load Chart
+                    </button>
+                    <div id="status_model_comp_chinese_simpleqa" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+            <div class="chart-card">
+                <div class="chart-title">Model Comparison: general_qa</div>
+                <div class="chart-wrapper">
+                    <canvas id="model_comp_general_qa"></canvas>
+                </div>
+                <div class="chart-description">
+                    Compares all evaluated models on the general_qa dataset.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_model_comp_general_qa" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/model_comparison_general_qa.json', 'model_comp_general_qa', 'btn_model_comp_general_qa', 'status_model_comp_general_qa')">
+                        Load Chart
+                    </button>
+                    <div id="status_model_comp_general_qa" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+            <div class="chart-card">
+                <div class="chart-title">Model Comparison: ifeval</div>
+                <div class="chart-wrapper">
+                    <canvas id="model_comp_ifeval"></canvas>
+                </div>
+                <div class="chart-description">
+                    Compares all evaluated models on the ifeval dataset.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_model_comp_ifeval" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/model_comparison_ifeval.json', 'model_comp_ifeval', 'btn_model_comp_ifeval', 'status_model_comp_ifeval')">
+                        Load Chart
+                    </button>
+                    <div id="status_model_comp_ifeval" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+            <div class="chart-card">
+                <div class="chart-title">Model Comparison: math_500</div>
+                <div class="chart-wrapper">
+                    <canvas id="model_comp_math_500"></canvas>
+                </div>
+                <div class="chart-description">
+                    Compares all evaluated models on the math_500 dataset.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_model_comp_math_500" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/model_comparison_math_500.json', 'model_comp_math_500', 'btn_model_comp_math_500', 'status_model_comp_math_500')">
+                        Load Chart
+                    </button>
+                    <div id="status_model_comp_math_500" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+            <div class="chart-card">
+                <div class="chart-title">Model Comparison: multi_if</div>
+                <div class="chart-wrapper">
+                    <canvas id="model_comp_multi_if"></canvas>
+                </div>
+                <div class="chart-description">
+                    Compares all evaluated models on the multi_if dataset.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_model_comp_multi_if" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/model_comparison_multi_if.json', 'model_comp_multi_if', 'btn_model_comp_multi_if', 'status_model_comp_multi_if')">
+                        Load Chart
+                    </button>
+                    <div id="status_model_comp_multi_if" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+            <div class="chart-card">
+                <div class="chart-title">Model Comparison: swe_bench_verified_mini</div>
+                <div class="chart-wrapper">
+                    <canvas id="model_comp_swe_bench_verified_mini"></canvas>
+                </div>
+                <div class="chart-description">
+                    Compares all evaluated models on the swe_bench_verified_mini dataset.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_model_comp_swe_bench_verified_mini" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/model_comparison_swe_bench_verified_mini.json', 'model_comp_swe_bench_verified_mini', 'btn_model_comp_swe_bench_verified_mini', 'status_model_comp_swe_bench_verified_mini')">
+                        Load Chart
+                    </button>
+                    <div id="status_model_comp_swe_bench_verified_mini" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+        </div>
+    </div>
+    
+
+    <div class="section" id="dataset-comparisons">
+        <h2>Dataset Comparisons</h2>
+        <p>Compare how each model performs across different datasets.</p>
+
+        <div class="chart-controls" style="margin-bottom: 20px;">
+            <button class="load-btn" onclick="loadAllCharts('dataset-comparisons')">Load All Dataset Charts</button>
+        </div>
+
+        <div class="chart-grid">
+    
+
+            <div class="chart-card">
+                <div class="chart-title">Dataset Comparison: deepseek-reasoner-v3.2-exp</div>
+                <div class="chart-wrapper">
+                    <canvas id="dataset_comp_deepseek_reasoner_v3.2_exp"></canvas>
+                </div>
+                <div class="chart-description">
+                    Shows deepseek-reasoner-v3.2-exp's performance across all evaluated datasets.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_dataset_comp_deepseek_reasoner_v3.2_exp" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/dataset_comparison_deepseek-reasoner-v3.2-exp.json', 'dataset_comp_deepseek_reasoner_v3.2_exp', 'btn_dataset_comp_deepseek_reasoner_v3.2_exp', 'status_dataset_comp_deepseek_reasoner_v3.2_exp')">
+                        Load Chart
+                    </button>
+                    <div id="status_dataset_comp_deepseek_reasoner_v3.2_exp" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+            <div class="chart-card">
+                <div class="chart-title">Dataset Comparison: deepseek-reasoner-v3.2-special</div>
+                <div class="chart-wrapper">
+                    <canvas id="dataset_comp_deepseek_reasoner_v3.2_special"></canvas>
+                </div>
+                <div class="chart-description">
+                    Shows deepseek-reasoner-v3.2-special's performance across all evaluated datasets.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_dataset_comp_deepseek_reasoner_v3.2_special" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/dataset_comparison_deepseek-reasoner-v3.2-special.json', 'dataset_comp_deepseek_reasoner_v3.2_special', 'btn_dataset_comp_deepseek_reasoner_v3.2_special', 'status_dataset_comp_deepseek_reasoner_v3.2_special')">
+                        Load Chart
+                    </button>
+                    <div id="status_dataset_comp_deepseek_reasoner_v3.2_special" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+            <div class="chart-card">
+                <div class="chart-title">Dataset Comparison: deepseek-reasoner-v3.2</div>
+                <div class="chart-wrapper">
+                    <canvas id="dataset_comp_deepseek_reasoner_v3.2"></canvas>
+                </div>
+                <div class="chart-description">
+                    Shows deepseek-reasoner-v3.2's performance across all evaluated datasets.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_dataset_comp_deepseek_reasoner_v3.2" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/dataset_comparison_deepseek-reasoner-v3.2.json', 'dataset_comp_deepseek_reasoner_v3.2', 'btn_dataset_comp_deepseek_reasoner_v3.2', 'status_dataset_comp_deepseek_reasoner_v3.2')">
+                        Load Chart
+                    </button>
+                    <div id="status_dataset_comp_deepseek_reasoner_v3.2" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+            <div class="chart-card">
+                <div class="chart-title">Dataset Comparison: doubao-seed-1-6-251015</div>
+                <div class="chart-wrapper">
+                    <canvas id="dataset_comp_doubao_seed_1_6_251015"></canvas>
+                </div>
+                <div class="chart-description">
+                    Shows doubao-seed-1-6-251015's performance across all evaluated datasets.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_dataset_comp_doubao_seed_1_6_251015" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/dataset_comparison_doubao-seed-1-6-251015.json', 'dataset_comp_doubao_seed_1_6_251015', 'btn_dataset_comp_doubao_seed_1_6_251015', 'status_dataset_comp_doubao_seed_1_6_251015')">
+                        Load Chart
+                    </button>
+                    <div id="status_dataset_comp_doubao_seed_1_6_251015" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+            <div class="chart-card">
+                <div class="chart-title">Dataset Comparison: qwen-plus</div>
+                <div class="chart-wrapper">
+                    <canvas id="dataset_comp_qwen_plus"></canvas>
+                </div>
+                <div class="chart-description">
+                    Shows qwen-plus's performance across all evaluated datasets.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_dataset_comp_qwen_plus" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/dataset_comparison_qwen-plus.json', 'dataset_comp_qwen_plus', 'btn_dataset_comp_qwen_plus', 'status_dataset_comp_qwen_plus')">
+                        Load Chart
+                    </button>
+                    <div id="status_dataset_comp_qwen_plus" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+            <div class="chart-card">
+                <div class="chart-title">Dataset Comparison: qwen3-max</div>
+                <div class="chart-wrapper">
+                    <canvas id="dataset_comp_qwen3_max"></canvas>
+                </div>
+                <div class="chart-description">
+                    Shows qwen3-max's performance across all evaluated datasets.
+                </div>
+                <div class="chart-controls">
+                    <button id="btn_dataset_comp_qwen3_max" class="load-btn"
+                            onclick="loadChart('visualization_output\chart_configs/dataset_comparison_qwen3-max.json', 'dataset_comp_qwen3_max', 'btn_dataset_comp_qwen3_max', 'status_dataset_comp_qwen3_max')">
+                        Load Chart
+                    </button>
+                    <div id="status_dataset_comp_qwen3_max" class="status">Ready</div>
+                </div>
+            </div>
+        
+
+        </div>
+    </div>
+    
+
+    <div class="section" id="category-analysis">
+        <h2>Category Analysis</h2>
+        <p>Detailed breakdown of model performance across categories within datasets (radar charts).</p>
+
+        <div class="chart-controls" style="margin-bottom: 20px;">
+            <button class="load-btn" onclick="loadAllCharts('category-analysis')">Load All Category Charts</button>
+        </div>
+    
+
+        <h3 style="margin-top: 30px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+            chinese_simpleqa
+        </h3>
+        <div class="chart-grid">
+        
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-exp - chinese_simpleqa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_exp_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_exp_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-exp_chinese_simpleqa.json', 'radar_deepseek_reasoner_v3.2_exp_chinese_simpleqa', 'btn_radar_deepseek_reasoner_v3.2_exp_chinese_simpleqa', 'status_radar_deepseek_reasoner_v3.2_exp_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_exp_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-special - chinese_simpleqa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_special_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_special_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-special_chinese_simpleqa.json', 'radar_deepseek_reasoner_v3.2_special_chinese_simpleqa', 'btn_radar_deepseek_reasoner_v3.2_special_chinese_simpleqa', 'status_radar_deepseek_reasoner_v3.2_special_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_special_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2 - chinese_simpleqa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2_chinese_simpleqa.json', 'radar_deepseek_reasoner_v3.2_chinese_simpleqa', 'btn_radar_deepseek_reasoner_v3.2_chinese_simpleqa', 'status_radar_deepseek_reasoner_v3.2_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">doubao-seed-1-6-251015 - chinese_simpleqa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_doubao_seed_1_6_251015_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_doubao_seed_1_6_251015_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_doubao-seed-1-6-251015_chinese_simpleqa.json', 'radar_doubao_seed_1_6_251015_chinese_simpleqa', 'btn_radar_doubao_seed_1_6_251015_chinese_simpleqa', 'status_radar_doubao_seed_1_6_251015_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_doubao_seed_1_6_251015_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen-plus - chinese_simpleqa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen_plus_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen_plus_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen-plus_chinese_simpleqa.json', 'radar_qwen_plus_chinese_simpleqa', 'btn_radar_qwen_plus_chinese_simpleqa', 'status_radar_qwen_plus_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen_plus_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen3-max - chinese_simpleqa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen3_max_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen3_max_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen3-max_chinese_simpleqa.json', 'radar_qwen3_max_chinese_simpleqa', 'btn_radar_qwen3_max_chinese_simpleqa', 'status_radar_qwen3_max_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen3_max_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+        </div>
+        
+
+        <h3 style="margin-top: 30px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+            general_qa
+        </h3>
+        <div class="chart-grid">
+        
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-exp - general_qa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_exp_general_qa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in general_qa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_exp_general_qa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-exp_general_qa.json', 'radar_deepseek_reasoner_v3.2_exp_general_qa', 'btn_radar_deepseek_reasoner_v3.2_exp_general_qa', 'status_radar_deepseek_reasoner_v3.2_exp_general_qa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_exp_general_qa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-special - general_qa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_special_general_qa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in general_qa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_special_general_qa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-special_general_qa.json', 'radar_deepseek_reasoner_v3.2_special_general_qa', 'btn_radar_deepseek_reasoner_v3.2_special_general_qa', 'status_radar_deepseek_reasoner_v3.2_special_general_qa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_special_general_qa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2 - general_qa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_general_qa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in general_qa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_general_qa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2_general_qa.json', 'radar_deepseek_reasoner_v3.2_general_qa', 'btn_radar_deepseek_reasoner_v3.2_general_qa', 'status_radar_deepseek_reasoner_v3.2_general_qa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_general_qa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">doubao-seed-1-6-251015 - general_qa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_doubao_seed_1_6_251015_general_qa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in general_qa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_doubao_seed_1_6_251015_general_qa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_doubao-seed-1-6-251015_general_qa.json', 'radar_doubao_seed_1_6_251015_general_qa', 'btn_radar_doubao_seed_1_6_251015_general_qa', 'status_radar_doubao_seed_1_6_251015_general_qa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_doubao_seed_1_6_251015_general_qa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen-plus - general_qa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen_plus_general_qa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in general_qa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen_plus_general_qa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen-plus_general_qa.json', 'radar_qwen_plus_general_qa', 'btn_radar_qwen_plus_general_qa', 'status_radar_qwen_plus_general_qa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen_plus_general_qa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen3-max - general_qa Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen3_max_general_qa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in general_qa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen3_max_general_qa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen3-max_general_qa.json', 'radar_qwen3_max_general_qa', 'btn_radar_qwen3_max_general_qa', 'status_radar_qwen3_max_general_qa')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen3_max_general_qa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+        </div>
+        
+
+        <h3 style="margin-top: 30px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+            ifeval
+        </h3>
+        <div class="chart-grid">
+        
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-exp - ifeval Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_exp_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_exp_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-exp_ifeval.json', 'radar_deepseek_reasoner_v3.2_exp_ifeval', 'btn_radar_deepseek_reasoner_v3.2_exp_ifeval', 'status_radar_deepseek_reasoner_v3.2_exp_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_exp_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-special - ifeval Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_special_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_special_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-special_ifeval.json', 'radar_deepseek_reasoner_v3.2_special_ifeval', 'btn_radar_deepseek_reasoner_v3.2_special_ifeval', 'status_radar_deepseek_reasoner_v3.2_special_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_special_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2 - ifeval Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2_ifeval.json', 'radar_deepseek_reasoner_v3.2_ifeval', 'btn_radar_deepseek_reasoner_v3.2_ifeval', 'status_radar_deepseek_reasoner_v3.2_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">doubao-seed-1-6-251015 - ifeval Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_doubao_seed_1_6_251015_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_doubao_seed_1_6_251015_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_doubao-seed-1-6-251015_ifeval.json', 'radar_doubao_seed_1_6_251015_ifeval', 'btn_radar_doubao_seed_1_6_251015_ifeval', 'status_radar_doubao_seed_1_6_251015_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_doubao_seed_1_6_251015_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen-plus - ifeval Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen_plus_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen_plus_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen-plus_ifeval.json', 'radar_qwen_plus_ifeval', 'btn_radar_qwen_plus_ifeval', 'status_radar_qwen_plus_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen_plus_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen3-max - ifeval Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen3_max_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen3_max_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen3-max_ifeval.json', 'radar_qwen3_max_ifeval', 'btn_radar_qwen3_max_ifeval', 'status_radar_qwen3_max_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen3_max_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+        </div>
+        
+
+        <h3 style="margin-top: 30px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+            math_500
+        </h3>
+        <div class="chart-grid">
+        
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-exp - math_500 Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_exp_math_500"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in math_500.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_exp_math_500" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-exp_math_500.json', 'radar_deepseek_reasoner_v3.2_exp_math_500', 'btn_radar_deepseek_reasoner_v3.2_exp_math_500', 'status_radar_deepseek_reasoner_v3.2_exp_math_500')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_exp_math_500" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-special - math_500 Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_special_math_500"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in math_500.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_special_math_500" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-special_math_500.json', 'radar_deepseek_reasoner_v3.2_special_math_500', 'btn_radar_deepseek_reasoner_v3.2_special_math_500', 'status_radar_deepseek_reasoner_v3.2_special_math_500')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_special_math_500" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2 - math_500 Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_math_500"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in math_500.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_math_500" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2_math_500.json', 'radar_deepseek_reasoner_v3.2_math_500', 'btn_radar_deepseek_reasoner_v3.2_math_500', 'status_radar_deepseek_reasoner_v3.2_math_500')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_math_500" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">doubao-seed-1-6-251015 - math_500 Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_doubao_seed_1_6_251015_math_500"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in math_500.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_doubao_seed_1_6_251015_math_500" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_doubao-seed-1-6-251015_math_500.json', 'radar_doubao_seed_1_6_251015_math_500', 'btn_radar_doubao_seed_1_6_251015_math_500', 'status_radar_doubao_seed_1_6_251015_math_500')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_doubao_seed_1_6_251015_math_500" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen-plus - math_500 Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen_plus_math_500"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in math_500.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen_plus_math_500" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen-plus_math_500.json', 'radar_qwen_plus_math_500', 'btn_radar_qwen_plus_math_500', 'status_radar_qwen_plus_math_500')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen_plus_math_500" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen3-max - math_500 Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen3_max_math_500"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in math_500.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen3_max_math_500" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen3-max_math_500.json', 'radar_qwen3_max_math_500', 'btn_radar_qwen3_max_math_500', 'status_radar_qwen3_max_math_500')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen3_max_math_500" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+        </div>
+        
+
+        <h3 style="margin-top: 30px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+            multi_if
+        </h3>
+        <div class="chart-grid">
+        
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-exp - multi_if Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_exp_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_exp_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-exp_multi_if.json', 'radar_deepseek_reasoner_v3.2_exp_multi_if', 'btn_radar_deepseek_reasoner_v3.2_exp_multi_if', 'status_radar_deepseek_reasoner_v3.2_exp_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_exp_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-special - multi_if Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_special_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_special_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-special_multi_if.json', 'radar_deepseek_reasoner_v3.2_special_multi_if', 'btn_radar_deepseek_reasoner_v3.2_special_multi_if', 'status_radar_deepseek_reasoner_v3.2_special_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_special_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2 - multi_if Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2_multi_if.json', 'radar_deepseek_reasoner_v3.2_multi_if', 'btn_radar_deepseek_reasoner_v3.2_multi_if', 'status_radar_deepseek_reasoner_v3.2_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">doubao-seed-1-6-251015 - multi_if Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_doubao_seed_1_6_251015_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_doubao_seed_1_6_251015_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_doubao-seed-1-6-251015_multi_if.json', 'radar_doubao_seed_1_6_251015_multi_if', 'btn_radar_doubao_seed_1_6_251015_multi_if', 'status_radar_doubao_seed_1_6_251015_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_doubao_seed_1_6_251015_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen-plus - multi_if Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen_plus_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen_plus_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen-plus_multi_if.json', 'radar_qwen_plus_multi_if', 'btn_radar_qwen_plus_multi_if', 'status_radar_qwen_plus_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen_plus_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen3-max - multi_if Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen3_max_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen3_max_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen3-max_multi_if.json', 'radar_qwen3_max_multi_if', 'btn_radar_qwen3_max_multi_if', 'status_radar_qwen3_max_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen3_max_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+        </div>
+        
+
+        <h3 style="margin-top: 30px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+            swe_bench_verified_mini
+        </h3>
+        <div class="chart-grid">
+        
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-exp - swe_bench_verified_mini Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_exp_swe_bench_verified_mini"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in swe_bench_verified_mini.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_exp_swe_bench_verified_mini" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-exp_swe_bench_verified_mini.json', 'radar_deepseek_reasoner_v3.2_exp_swe_bench_verified_mini', 'btn_radar_deepseek_reasoner_v3.2_exp_swe_bench_verified_mini', 'status_radar_deepseek_reasoner_v3.2_exp_swe_bench_verified_mini')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_exp_swe_bench_verified_mini" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-special - swe_bench_verified_mini Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_special_swe_bench_verified_mini"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in swe_bench_verified_mini.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_special_swe_bench_verified_mini" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2-special_swe_bench_verified_mini.json', 'radar_deepseek_reasoner_v3.2_special_swe_bench_verified_mini', 'btn_radar_deepseek_reasoner_v3.2_special_swe_bench_verified_mini', 'status_radar_deepseek_reasoner_v3.2_special_swe_bench_verified_mini')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_special_swe_bench_verified_mini" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2 - swe_bench_verified_mini Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_deepseek_reasoner_v3.2_swe_bench_verified_mini"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in swe_bench_verified_mini.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_deepseek_reasoner_v3.2_swe_bench_verified_mini" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_deepseek-reasoner-v3.2_swe_bench_verified_mini.json', 'radar_deepseek_reasoner_v3.2_swe_bench_verified_mini', 'btn_radar_deepseek_reasoner_v3.2_swe_bench_verified_mini', 'status_radar_deepseek_reasoner_v3.2_swe_bench_verified_mini')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_deepseek_reasoner_v3.2_swe_bench_verified_mini" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">doubao-seed-1-6-251015 - swe_bench_verified_mini Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_doubao_seed_1_6_251015_swe_bench_verified_mini"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in swe_bench_verified_mini.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_doubao_seed_1_6_251015_swe_bench_verified_mini" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_doubao-seed-1-6-251015_swe_bench_verified_mini.json', 'radar_doubao_seed_1_6_251015_swe_bench_verified_mini', 'btn_radar_doubao_seed_1_6_251015_swe_bench_verified_mini', 'status_radar_doubao_seed_1_6_251015_swe_bench_verified_mini')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_doubao_seed_1_6_251015_swe_bench_verified_mini" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen-plus - swe_bench_verified_mini Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen_plus_swe_bench_verified_mini"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in swe_bench_verified_mini.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen_plus_swe_bench_verified_mini" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen-plus_swe_bench_verified_mini.json', 'radar_qwen_plus_swe_bench_verified_mini', 'btn_radar_qwen_plus_swe_bench_verified_mini', 'status_radar_qwen_plus_swe_bench_verified_mini')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen_plus_swe_bench_verified_mini" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen3-max - swe_bench_verified_mini Categories</div>
+                    <div class="chart-wrapper">
+                        <canvas id="radar_qwen3_max_swe_bench_verified_mini"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Radar chart showing performance across categories in swe_bench_verified_mini.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_radar_qwen3_max_swe_bench_verified_mini" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/category_radar_qwen3-max_swe_bench_verified_mini.json', 'radar_qwen3_max_swe_bench_verified_mini', 'btn_radar_qwen3_max_swe_bench_verified_mini', 'status_radar_qwen3_max_swe_bench_verified_mini')">
+                            Load Chart
+                        </button>
+                        <div id="status_radar_qwen3_max_swe_bench_verified_mini" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+        </div>
+        
+
+    </div>
+    
+
+    <div class="section" id="metric-analysis">
+        <h2>Metric Analysis</h2>
+        <p>Comparison of different evaluation metrics for the same model-dataset pair.</p>
+
+        <div class="chart-controls" style="margin-bottom: 20px;">
+            <button class="load-btn" onclick="loadAllCharts('metric-analysis')">Load All Metric Charts</button>
+        </div>
+    
+
+        <h3 style="margin-top: 30px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+            chinese_simpleqa
+        </h3>
+        <div class="chart-grid">
+        
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-exp - chinese_simpleqa Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_deepseek_reasoner_v3.2_exp_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for deepseek-reasoner-v3.2-exp on chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_deepseek_reasoner_v3.2_exp_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_deepseek-reasoner-v3.2-exp_chinese_simpleqa.json', 'metric_deepseek_reasoner_v3.2_exp_chinese_simpleqa', 'btn_metric_deepseek_reasoner_v3.2_exp_chinese_simpleqa', 'status_metric_deepseek_reasoner_v3.2_exp_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_deepseek_reasoner_v3.2_exp_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-special - chinese_simpleqa Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_deepseek_reasoner_v3.2_special_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for deepseek-reasoner-v3.2-special on chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_deepseek_reasoner_v3.2_special_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_deepseek-reasoner-v3.2-special_chinese_simpleqa.json', 'metric_deepseek_reasoner_v3.2_special_chinese_simpleqa', 'btn_metric_deepseek_reasoner_v3.2_special_chinese_simpleqa', 'status_metric_deepseek_reasoner_v3.2_special_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_deepseek_reasoner_v3.2_special_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2 - chinese_simpleqa Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_deepseek_reasoner_v3.2_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for deepseek-reasoner-v3.2 on chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_deepseek_reasoner_v3.2_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_deepseek-reasoner-v3.2_chinese_simpleqa.json', 'metric_deepseek_reasoner_v3.2_chinese_simpleqa', 'btn_metric_deepseek_reasoner_v3.2_chinese_simpleqa', 'status_metric_deepseek_reasoner_v3.2_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_deepseek_reasoner_v3.2_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">doubao-seed-1-6-251015 - chinese_simpleqa Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_doubao_seed_1_6_251015_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for doubao-seed-1-6-251015 on chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_doubao_seed_1_6_251015_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_doubao-seed-1-6-251015_chinese_simpleqa.json', 'metric_doubao_seed_1_6_251015_chinese_simpleqa', 'btn_metric_doubao_seed_1_6_251015_chinese_simpleqa', 'status_metric_doubao_seed_1_6_251015_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_doubao_seed_1_6_251015_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen-plus - chinese_simpleqa Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_qwen_plus_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for qwen-plus on chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_qwen_plus_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_qwen-plus_chinese_simpleqa.json', 'metric_qwen_plus_chinese_simpleqa', 'btn_metric_qwen_plus_chinese_simpleqa', 'status_metric_qwen_plus_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_qwen_plus_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen3-max - chinese_simpleqa Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_qwen3_max_chinese_simpleqa"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for qwen3-max on chinese_simpleqa.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_qwen3_max_chinese_simpleqa" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_qwen3-max_chinese_simpleqa.json', 'metric_qwen3_max_chinese_simpleqa', 'btn_metric_qwen3_max_chinese_simpleqa', 'status_metric_qwen3_max_chinese_simpleqa')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_qwen3_max_chinese_simpleqa" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+        </div>
+        
+
+        <h3 style="margin-top: 30px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+            ifeval
+        </h3>
+        <div class="chart-grid">
+        
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-exp - ifeval Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_deepseek_reasoner_v3.2_exp_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for deepseek-reasoner-v3.2-exp on ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_deepseek_reasoner_v3.2_exp_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_deepseek-reasoner-v3.2-exp_ifeval.json', 'metric_deepseek_reasoner_v3.2_exp_ifeval', 'btn_metric_deepseek_reasoner_v3.2_exp_ifeval', 'status_metric_deepseek_reasoner_v3.2_exp_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_deepseek_reasoner_v3.2_exp_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-special - ifeval Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_deepseek_reasoner_v3.2_special_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for deepseek-reasoner-v3.2-special on ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_deepseek_reasoner_v3.2_special_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_deepseek-reasoner-v3.2-special_ifeval.json', 'metric_deepseek_reasoner_v3.2_special_ifeval', 'btn_metric_deepseek_reasoner_v3.2_special_ifeval', 'status_metric_deepseek_reasoner_v3.2_special_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_deepseek_reasoner_v3.2_special_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2 - ifeval Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_deepseek_reasoner_v3.2_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for deepseek-reasoner-v3.2 on ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_deepseek_reasoner_v3.2_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_deepseek-reasoner-v3.2_ifeval.json', 'metric_deepseek_reasoner_v3.2_ifeval', 'btn_metric_deepseek_reasoner_v3.2_ifeval', 'status_metric_deepseek_reasoner_v3.2_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_deepseek_reasoner_v3.2_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">doubao-seed-1-6-251015 - ifeval Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_doubao_seed_1_6_251015_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for doubao-seed-1-6-251015 on ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_doubao_seed_1_6_251015_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_doubao-seed-1-6-251015_ifeval.json', 'metric_doubao_seed_1_6_251015_ifeval', 'btn_metric_doubao_seed_1_6_251015_ifeval', 'status_metric_doubao_seed_1_6_251015_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_doubao_seed_1_6_251015_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen-plus - ifeval Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_qwen_plus_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for qwen-plus on ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_qwen_plus_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_qwen-plus_ifeval.json', 'metric_qwen_plus_ifeval', 'btn_metric_qwen_plus_ifeval', 'status_metric_qwen_plus_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_qwen_plus_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen3-max - ifeval Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_qwen3_max_ifeval"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for qwen3-max on ifeval.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_qwen3_max_ifeval" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_qwen3-max_ifeval.json', 'metric_qwen3_max_ifeval', 'btn_metric_qwen3_max_ifeval', 'status_metric_qwen3_max_ifeval')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_qwen3_max_ifeval" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+        </div>
+        
+
+        <h3 style="margin-top: 30px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+            multi_if
+        </h3>
+        <div class="chart-grid">
+        
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-exp - multi_if Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_deepseek_reasoner_v3.2_exp_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for deepseek-reasoner-v3.2-exp on multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_deepseek_reasoner_v3.2_exp_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_deepseek-reasoner-v3.2-exp_multi_if.json', 'metric_deepseek_reasoner_v3.2_exp_multi_if', 'btn_metric_deepseek_reasoner_v3.2_exp_multi_if', 'status_metric_deepseek_reasoner_v3.2_exp_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_deepseek_reasoner_v3.2_exp_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2-special - multi_if Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_deepseek_reasoner_v3.2_special_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for deepseek-reasoner-v3.2-special on multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_deepseek_reasoner_v3.2_special_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_deepseek-reasoner-v3.2-special_multi_if.json', 'metric_deepseek_reasoner_v3.2_special_multi_if', 'btn_metric_deepseek_reasoner_v3.2_special_multi_if', 'status_metric_deepseek_reasoner_v3.2_special_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_deepseek_reasoner_v3.2_special_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">deepseek-reasoner-v3.2 - multi_if Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_deepseek_reasoner_v3.2_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for deepseek-reasoner-v3.2 on multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_deepseek_reasoner_v3.2_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_deepseek-reasoner-v3.2_multi_if.json', 'metric_deepseek_reasoner_v3.2_multi_if', 'btn_metric_deepseek_reasoner_v3.2_multi_if', 'status_metric_deepseek_reasoner_v3.2_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_deepseek_reasoner_v3.2_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">doubao-seed-1-6-251015 - multi_if Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_doubao_seed_1_6_251015_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for doubao-seed-1-6-251015 on multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_doubao_seed_1_6_251015_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_doubao-seed-1-6-251015_multi_if.json', 'metric_doubao_seed_1_6_251015_multi_if', 'btn_metric_doubao_seed_1_6_251015_multi_if', 'status_metric_doubao_seed_1_6_251015_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_doubao_seed_1_6_251015_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen-plus - multi_if Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_qwen_plus_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for qwen-plus on multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_qwen_plus_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_qwen-plus_multi_if.json', 'metric_qwen_plus_multi_if', 'btn_metric_qwen_plus_multi_if', 'status_metric_qwen_plus_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_qwen_plus_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+                <div class="chart-card">
+                    <div class="chart-title">qwen3-max - multi_if Metrics</div>
+                    <div class="chart-wrapper">
+                        <canvas id="metric_qwen3_max_multi_if"></canvas>
+                    </div>
+                    <div class="chart-description">
+                        Comparison of evaluation metrics for qwen3-max on multi_if.
+                    </div>
+                    <div class="chart-controls">
+                        <button id="btn_metric_qwen3_max_multi_if" class="load-btn"
+                                onclick="loadChart('visualization_output\chart_configs/metric_comparison_qwen3-max_multi_if.json', 'metric_qwen3_max_multi_if', 'btn_metric_qwen3_max_multi_if', 'status_metric_qwen3_max_multi_if')">
+                            Load Chart
+                        </button>
+                        <div id="status_metric_qwen3_max_multi_if" class="status">Ready</div>
+                    </div>
+                </div>
+            
+
+        </div>
+        
+
+    </div>
+    
+
+    <div class="section" id="how-to-use">
+        <h2>How to Use This Report</h2>
+
+        <h3>Interactive Features</h3>
+        <ul style="margin-left: 20px; margin-bottom: 20px;">
+            <li>Click "Load Chart" buttons to render individual charts</li>
+            <li>Use "Load All Charts" buttons to load all charts in a section</li>
+            <li>Hover over chart elements to see detailed values</li>
+            <li>Charts are responsive and work on mobile devices</li>
+        </ul>
+
+        <h3>Chart Types</h3>
+        <ul style="margin-left: 20px; margin-bottom: 20px;">
+            <li><strong>Bar Charts</strong>: Used for model and dataset comparisons</li>
+            <li><strong>Radar Charts</strong>: Used for category analysis</li>
+            <li><strong>Color Coding</strong>:
+                <ul>
+                    <li>Green: Score ≥ 0.8 (Good performance)</li>
+                    <li>Yellow: 0.6 ≤ Score < 0.8 (Average performance)</li>
+                    <li>Red: Score < 0.6 (Needs improvement)</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>Technical Details</h3>
+        <ul style="margin-left: 20px; margin-bottom: 20px;">
+            <li>Charts are rendered using <a href="https://www.chartjs.org/" target="_blank">Chart.js</a></li>
+            <li>Data is loaded dynamically from JSON configuration files</li>
+            <li>All charts are generated from evaluation result files</li>
+            <li>This is a standalone HTML file - no server required</li>
+        </ul>
+
+        <h3>Regenerating Charts</h3>
+        <p>To regenerate the charts with new data:</p>
+        <pre style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin: 15px 0;">
+cd data_process
+python generate_charts.py --output-dir visualization_data
+python generate_html_report.py --chart-dir visualization_data --output report.html</pre>
+    </div>
+
+    <footer>
+        <p>Report generated automatically by LLM Evaluation Visualization Tool</p>
+        <p>Generated on: 2025-12-03 21:22:24</p>
+    </footer>
+
+    <script>
+        // Auto-load first chart in each section for preview
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                // Load first model comparison chart
+                const firstModelBtn = document.querySelector('#model-comparisons .load-btn');
+                if (firstModelBtn && !firstModelBtn.id.includes('All')) {
+                    firstModelBtn.click();
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

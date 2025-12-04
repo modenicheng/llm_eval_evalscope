@@ -1,0 +1,206 @@
+{
+  "deepseek-reasoner-v3.2": {
+    "total_samples": 50,
+    "avg_acc": 0.3,
+    "acc_std": 0.4629100498862757,
+    "completed_rate": 0.5,
+    "resolved_rate": 0.3,
+    "error_samples": 25,
+    "test_stats": {
+      "fail_to_pass": {
+        "success": 21,
+        "failure": 11
+      },
+      "pass_to_pass": {
+        "success": 770,
+        "failure": 46
+      },
+      "fail_to_fail": {
+        "success": 0,
+        "failure": 0
+      },
+      "pass_to_fail": {
+        "success": 0,
+        "failure": 0
+      }
+    },
+    "patch_stats": {
+      "patch_is_none_count": 0,
+      "patch_is_none_rate": 0.0,
+      "patch_exists_count": 0,
+      "patch_exists_rate": 0.0,
+      "patch_successfully_applied_count": 0,
+      "patch_successfully_applied_rate": 0.0
+    }
+  },
+  "deepseek-reasoner-v3.2-exp": {
+    "total_samples": 50,
+    "avg_acc": 0.26,
+    "acc_std": 0.44308749769345207,
+    "completed_rate": 0.46,
+    "resolved_rate": 0.26,
+    "error_samples": 27,
+    "test_stats": {
+      "fail_to_pass": {
+        "success": 18,
+        "failure": 14
+      },
+      "pass_to_pass": {
+        "success": 846,
+        "failure": 71
+      },
+      "fail_to_fail": {
+        "success": 0,
+        "failure": 0
+      },
+      "pass_to_fail": {
+        "success": 0,
+        "failure": 0
+      }
+    },
+    "patch_stats": {
+      "patch_is_none_count": 0,
+      "patch_is_none_rate": 0.0,
+      "patch_exists_count": 0,
+      "patch_exists_rate": 0.0,
+      "patch_successfully_applied_count": 0,
+      "patch_successfully_applied_rate": 0.0
+    }
+  },
+  "deepseek-reasoner-v3.2-special": {
+    "total_samples": 50,
+    "avg_acc": 0.28,
+    "acc_std": 0.4535573676110727,
+    "completed_rate": 0.46,
+    "resolved_rate": 0.28,
+    "error_samples": 27,
+    "test_stats": {
+      "fail_to_pass": {
+        "success": 16,
+        "failure": 16
+      },
+      "pass_to_pass": {
+        "success": 1068,
+        "failure": 33
+      },
+      "fail_to_fail": {
+        "success": 0,
+        "failure": 0
+      },
+      "pass_to_fail": {
+        "success": 0,
+        "failure": 0
+      }
+    },
+    "patch_stats": {
+      "patch_is_none_count": 0,
+      "patch_is_none_rate": 0.0,
+      "patch_exists_count": 0,
+      "patch_exists_rate": 0.0,
+      "patch_successfully_applied_count": 0,
+      "patch_successfully_applied_rate": 0.0
+    }
+  },
+  "doubao-seed-1-6-251015": {
+    "total_samples": 50,
+    "avg_acc": 0.32,
+    "acc_std": 0.4712120714991612,
+    "completed_rate": 0.6,
+    "resolved_rate": 0.32,
+    "error_samples": 20,
+    "test_stats": {
+      "fail_to_pass": {
+        "success": 19,
+        "failure": 20
+      },
+      "pass_to_pass": {
+        "success": 1037,
+        "failure": 84
+      },
+      "fail_to_fail": {
+        "success": 0,
+        "failure": 0
+      },
+      "pass_to_fail": {
+        "success": 0,
+        "failure": 0
+      }
+    },
+    "patch_stats": {
+      "patch_is_none_count": 0,
+      "patch_is_none_rate": 0.0,
+      "patch_exists_count": 0,
+      "patch_exists_rate": 0.0,
+      "patch_successfully_applied_count": 0,
+      "patch_successfully_applied_rate": 0.0
+    }
+  },
+  "qwen-plus": {
+    "total_samples": 50,
+    "avg_acc": 0.18,
+    "acc_std": 0.38808793449160356,
+    "completed_rate": 0.5,
+    "resolved_rate": 0.18,
+    "error_samples": 25,
+    "test_stats": {
+      "fail_to_pass": {
+        "success": 12,
+        "failure": 25
+      },
+      "pass_to_pass": {
+        "success": 1049,
+        "failure": 87
+      },
+      "fail_to_fail": {
+        "success": 0,
+        "failure": 0
+      },
+      "pass_to_fail": {
+        "success": 0,
+        "failure": 0
+      }
+    },
+    "patch_stats": {
+      "patch_is_none_count": 0,
+      "patch_is_none_rate": 0.0,
+      "patch_exists_count": 0,
+      "patch_exists_rate": 0.0,
+      "patch_successfully_applied_count": 0,
+      "patch_successfully_applied_rate": 0.0
+    }
+  },
+  "qwen3-max": {
+    "total_samples": 50,
+    "avg_acc": 0.22,
+    "acc_std": 0.4184519575964803,
+    "completed_rate": 0.48,
+    "resolved_rate": 0.22,
+    "error_samples": 26,
+    "test_stats": {
+      "fail_to_pass": {
+        "success": 15,
+        "failure": 18
+      },
+      "pass_to_pass": {
+        "success": 1288,
+        "failure": 95
+      },
+      "fail_to_fail": {
+        "success": 0,
+        "failure": 0
+      },
+      "pass_to_fail": {
+        "success": 0,
+        "failure": 0
+      }
+    },
+    "patch_stats": {
+      "patch_is_none_count": 0,
+      "patch_is_none_rate": 0.0,
+      "patch_exists_count": 0,
+      "patch_exists_rate": 0.0,
+      "patch_successfully_applied_count": 0,
+      "patch_successfully_applied_rate": 0.0
+    }
+  }
+}
