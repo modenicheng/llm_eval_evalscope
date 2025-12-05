@@ -1,0 +1,38 @@
+{
+  "deepseek-reasoner-v3.2": {
+    "acc_rate": 0.3,
+    "patch_successfully_applied_rate": 0.5,
+    "fail_to_pass_rate": 0.65625,
+    "pass_to_pass_rate": 0.9436274509803921
+  },
+  "deepseek-reasoner-v3.2-exp": {
+    "acc_rate": 0.26,
+    "patch_successfully_applied_rate": 0.46,
+    "fail_to_pass_rate": 0.5625,
+    "pass_to_pass_rate": 0.9225736095965104
+  },
+  "deepseek-reasoner-v3.2-special": {
+    "acc_rate": 0.28,
+    "patch_successfully_applied_rate": 0.46,
+    "fail_to_pass_rate": 0.5,
+    "pass_to_pass_rate": 0.9700272479564033
+  },
+  "doubao-seed-1-6-251015": {
+    "acc_rate": 0.32,
+    "patch_successfully_applied_rate": 0.6,
+    "fail_to_pass_rate": 0.48717948717948717,
+    "pass_to_pass_rate": 0.9250669045495094
+  },
+  "qwen-plus": {
+    "acc_rate": 0.18,
+    "patch_successfully_applied_rate": 0.5,
+    "fail_to_pass_rate": 0.32432432432432434,
+    "pass_to_pass_rate": 0.9234154929577465
+  },
+  "qwen3-max": {
+    "acc_rate": 0.22,
+    "patch_successfully_applied_rate": 0.48,
+    "fail_to_pass_rate": 0.45454545454545453,
+    "pass_to_pass_rate": 0.9313087490961678
+  }
+}

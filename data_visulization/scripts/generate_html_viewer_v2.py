@@ -19,8 +19,13 @@ def generate_html(data):
     """生成HTML内容"""
     # 将数据转换为JSON字符串，用于嵌入
     json_str = json.dumps(data, ensure_ascii=False)
-    # HTML转义，防止</script>标签问题
+    # HTML转义，然后还原双引号（因为JSON需要原始双引号）
+    # html.escape() 会将 " 转义为 &quot;，但JSON解析需要 "
     json_str_escaped = html.escape(json_str)
+    # 将 &quot; 还原为 "
+    json_str_escaped = json_str_escaped.replace('&quot;', '"')
+    # 额外安全措施：转义 </script> 序列，防止意外结束标签
+    json_str_escaped = json_str_escaped.replace('</script>', '<\\/script>')
 
     # 统计信息
     total_categories = len(data)
